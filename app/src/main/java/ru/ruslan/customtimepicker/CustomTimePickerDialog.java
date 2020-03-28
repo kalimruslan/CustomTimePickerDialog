@@ -2,21 +2,25 @@ package ru.ruslan.customtimepicker;
 
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.res.Resources;
+import android.view.View;
+import android.widget.NumberPicker;
 import android.widget.TimePicker;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomTimePickerDialog extends TimePickerDialog {
     public static final int TIME_PICKER_INTERVAL=15;
     private boolean mIgnoreEvent=false;
+    private TimePicker mTimePicker;
 
     public CustomTimePickerDialog(Context context, int style, OnTimeSetListener callBack, int hourOfDay, int minute,
                                   boolean is24HourView) {
         super(context, style, callBack, hourOfDay, minute, is24HourView);
     }
-    /*
-     * (non-Javadoc)
-     * @see android.app.TimePickerDialog#onTimeChanged(android.widget.TimePicker, int, int)
-     * Implements Time Change Interval
-     */
+
     @Override
     public void onTimeChanged(TimePicker timePicker, int hourOfDay, int minute) {
         super.onTimeChanged(timePicker, hourOfDay, minute);
@@ -37,5 +41,28 @@ public class CustomTimePickerDialog extends TimePickerDialog {
         }
 
         return minute;
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        try {
+            Class<?> classForid = Class.forName("com.android.internal.R$id");
+            Field timePickerField = classForid.getField("timePicker");
+            findViewById(timePickerField.getInt(null));
+            Field field = classForid.getField("minute");
+
+            NumberPicker minuteSpinner = (NumberPicker) findViewById(field.getInt(null));
+            minuteSpinner.setMinValue(0);
+            minuteSpinner.setMaxValue((60 / TIME_PICKER_INTERVAL) - 1);
+            List<String> displayedValues = new ArrayList<>();
+            for (int i = 0; i < 60; i += TIME_PICKER_INTERVAL) {
+                displayedValues.add(String.format("%02d", i));
+            }
+            minuteSpinner.setDisplayedValues(displayedValues
+                    .toArray(new String[displayedValues.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

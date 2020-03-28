@@ -9,7 +9,7 @@ class TimePickerHelper(
     is24HourView: Boolean,
     isSpinnerType: Boolean = false
 ) {
-    private var dialog: CustomTimePickerDialog
+    private var dialog: IntervalTimePickerDialog
     private var callback: Callback? = null
     private val listener = TimePickerDialog.OnTimeSetListener { timePicker, hourOfDay, minute ->
         callback?.onTimeSelected(hourOfDay, minute)
@@ -22,10 +22,10 @@ class TimePickerHelper(
     init {
         val style = if (isSpinnerType) R.style.SpinnerTimePickerDialog else 0
         val cal = Calendar.getInstance()
-        dialog = CustomTimePickerDialog(
+        dialog = IntervalTimePickerDialog(
             context, style, listener,
             cal[Calendar.HOUR],
-            CustomTimePickerDialog.getRoundedMinute(cal[Calendar.MINUTE] + CustomTimePickerDialog.TIME_PICKER_INTERVAL),
+            cal[Calendar.MINUTE],
             is24HourView
         )
     }
